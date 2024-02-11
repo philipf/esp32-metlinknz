@@ -4,12 +4,12 @@
 #include <ArduinoJson.h>
 #include <TFT_eSPI.h>
 
+#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
+
 // Configuration
-const char *ssid = "";
-const char *password = "";
 // const char *apiUrl = "https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=5010";
 const char *apiUrl = "https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=3234";
-const char *apiKey = "";
+const char *apiKey = "6huzJQvJglAfJGdMk4S08MRPWzTWtbp5n2wt1AL0";
 
 TFT_eSPI tft = TFT_eSPI(); // Initialize TFT display
 
@@ -46,19 +46,21 @@ bool connectToWiFi()
     return true; // Already connected
   }
 
-  Serial.print("Connecting to WiFi..");
-  WiFi.begin(ssid, password);
+  /*
+    Serial.print("Connecting to WiFi..");
+    WiFi.begin(ssid, password);
 
-  for (int i = 0; i < 10; i++)
-  { // Try for 10 seconds
-    if (WiFi.status() == WL_CONNECTED)
-    {
-      Serial.println("\nConnected to WiFi");
-      return true;
-    }
-    delay(1000);
-    Serial.print(".");
-  }
+    for (int i = 0; i < 10; i++)
+    { // Try for 10 seconds
+      if (WiFi.status() == WL_CONNECTED)
+      {
+        Serial.println("\nConnected to WiFi");
+        return true;
+      }
+      delay(1000);
+      Serial.print(".");
+  */
+  //  }
 
   Serial.println("\nFailed to connect to WiFi");
   return false;
@@ -178,10 +180,42 @@ void setup()
 
   // indicate on the TFT display that the device is starting
   tft.drawString("Starting...", 5, 30, 2);
+
+  // WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP
+  // it is a good practice to make sure your code sets wifi mode how you want it.
+
+  // WiFiManager, Local intialization. Once its business is done, there is no need to keep it around
+  WiFiManager wm;
+
+  // reset settings - wipe stored credentials for testing
+  // these are stored by the esp library
+   wm.resetSettings();
+
+  // Automatically connect using saved credentials,
+  // if connection fails, it starts an access point with the specified name ( "AutoConnectAP"),
+  // if empty will auto generate SSID, if password is blank it will be anonymous AP (wm.autoConnect())
+  // then goes into a blocking loop awaiting configuration and will return success result
+
+  bool res;
+  // res = wm.autoConnect(); // auto generated AP name from chipid
+  // res = wm.autoConnect("AutoConnectAP"); // anonymous ap
+  res = wm.autoConnect("AutoConnectAP", "password"); // password protected ap
+
+  if (!res)
+  {
+    Serial.println("Failed to connect");
+    // ESP.restart();
+  }
+  else
+  {
+    // if you get here you have connected to the WiFi
+    Serial.println("connected...yeey :)");
+  }
 }
 
 void loop()
 {
+
   // Check if connected to WiFi, if not, attempt to reconnect
   if (connectToWiFi())
   {
