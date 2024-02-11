@@ -9,7 +9,7 @@
 // Configuration
 // const char *apiUrl = "https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=5010";
 const char *apiUrl = "https://api.opendata.metlink.org.nz/v1/stop-predictions?stop_id=3234";
-const char *apiKey = "6huzJQvJglAfJGdMk4S08MRPWzTWtbp5n2wt1AL0";
+const char *apiKey = "";
 
 TFT_eSPI tft = TFT_eSPI(); // Initialize TFT display
 
